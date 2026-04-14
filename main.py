@@ -3,7 +3,20 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import uvicorn
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+app = FastAPI()
+security = HTTPBasic()
+
+# Credenciais de autenticação carregadas do arquivo .env
+USERNAME = os.getenv("USERNAME", "admin")
+PASSWORD = os.getenv("PASSWORD", "secret123")
 
 def create_driver():
     options = Options()
@@ -85,5 +98,14 @@ def get_fii_data(ticker):
     return data
 
 
-for fii in ["BRCO11","BTHF11","CACR11","HSML11","MFII11","MXRF11","RBRX11","RZAT11","XPLG11","XPML11","HGLG11"]:
-    print(get_fii_data(fii))
+@app.get("/fii/{ticker}")
+def get_fii(ticker: str, credentials: HTTPBasicCredentials = Depends(security)):
+    if credentials.username != USERNAME or credentials.password != PASSWORD:
+        raise HTTPException(status_code=401, detail="Credenciais inválidas")
+    
+    data = get_fii_data(ticker)
+    return data
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

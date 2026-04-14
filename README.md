@@ -1,12 +1,12 @@
-# Python Selenium B3 Scraper
+# Python Selenium B3 API
 
-Este projeto é um script em Python que utiliza Selenium para extrair dados financeiros de Fundos de Investimento Imobiliário (FIIs) do site Status Invest (statusinvest.com.br). O script coleta informações como preço atual, P/VP e dividend yield para uma lista de tickers de FIIs.
+Esta API em Python utiliza Selenium para extrair dados financeiros de Fundos de Investimento Imobiliário (FIIs) do site Status Invest (statusinvest.com.br). A API fornece um endpoint para consultar dados de um ticker específico, retornando preço atual, P/VP e dividend yield em formato JSON.
 
 ## Pré-requisitos
 
 - Python 3.x
 - Google Chrome instalado
-- Selenium WebDriver (instalado via pip)
+- Dependências listadas em `requirements.txt`
 
 ## Instalação
 
@@ -14,37 +14,58 @@ Este projeto é um script em Python que utiliza Selenium para extrair dados fina
 2. Instale as dependências:
 
 ```bash
-pip install selenium
+pip install -r requirements.txt
 ```
+
+3. Copie o arquivo `.env.example` para `.env` e configure as credenciais:
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env` com suas credenciais desejadas.
 
 ## Uso
 
-Execute o script principal:
+Execute a API:
 
 ```bash
 python main.py
 ```
 
-O script irá processar uma lista pré-definida de tickers de FIIs e imprimir os dados extraídos no console.
+A API estará disponível em `http://localhost:8000`.
 
-## Exemplo de Output
+### Endpoint
 
-```shell
-{'ticker': 'BRCO11', 'preco': '114,60', 'pvp': '0,99', 'dy': '9,32'}
-{'ticker': 'BTHF11', 'preco': '9,29', 'pvp': '0,92', 'dy': '12,31'}
-{'ticker': 'CACR11', 'preco': '79,62', 'pvp': '0,83', 'dy': '20,00'}
-{'ticker': 'HSML11', 'preco': '95,14', 'pvp': '0,92', 'dy': '8,55'}
-{'ticker': 'MFII11', 'preco': '68,46', 'pvp': '0,71', 'dy': '18,77'}
-{'ticker': 'MXRF11', 'preco': '9,81', 'pvp': '1,02', 'dy': '12,21'}
-{'ticker': 'RBRX11', 'preco': '8,72', 'pvp': '0,89', 'dy': '12,30'}
-{'ticker': 'RZAT11', 'preco': '94,77', 'pvp': '0,94', 'dy': '12,61'}
-{'ticker': 'XPLG11', 'preco': '100,00', 'pvp': '0,94', 'dy': '9,84'}
-{'ticker': 'XPML11', 'preco': '111,63', 'pvp': '1,01', 'dy': '9,90'}
-{'ticker': 'HGLG11', 'preco': '157,11', 'pvp': '0,95', 'dy': '8,38'}
-```
+- **GET /fii/{ticker}**
+
+  Retorna os dados do FII para o ticker especificado.
+
+  **Autenticação:** HTTP Basic Auth
+  - Username e Password definidos no arquivo `.env`
+
+  **Exemplo de Requisição:**
+
+  ```bash
+  curl -u admin:secret123 http://localhost:8000/fii/CACR11
+  ```
+
+  **Exemplo de Resposta:**
+
+  ```json
+  {
+    "ticker": "CACR11",
+    "preco": "79,62",
+    "pvp": "0,83",
+    "dy": "20,00"
+  }
+  ```
+
+  Se houver erro, a resposta incluirá um campo "erro".
 
 ## Notas
 
-- O script roda em modo headless, ou seja, sem interface gráfica.
-- Certifique-se de que o ChromeDriver esteja compatível com a versão do seu navegador Chrome. O Selenium Manager geralmente cuida disso automaticamente.
-- Em caso de bloqueios ou timeouts, o script pode retornar mensagens de erro.
+- O scraping roda em modo headless.
+- Certifique-se de que o ChromeDriver seja compatível com sua versão do Chrome.
+- Em produção, use credenciais mais seguras e considere rate limiting.
+- O arquivo `.env` contém credenciais sensíveis e deve ser adicionado ao `.gitignore`.
